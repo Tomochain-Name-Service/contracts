@@ -9,7 +9,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer, owner } = await getNamedAccounts()
 
-  const registry = await ethers.getContract('ONSRegistry')
+  const registry = await ethers.getContract('TomoNsRegistry')
   const root = await ethers.getContract('Root')
 
   await deploy('ReverseRegistrar', {
@@ -25,7 +25,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`Transferring ownership of ReverseRegistrar to ${owner} (tx: ${tx.hash})...`)
     await tx.wait()
   }
-
   const tx1 = await root
     .connect(await ethers.getSigner(owner))
     .setSubnodeOwner('0x' + keccak256('reverse'), owner)
@@ -43,6 +42,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 func.id = 'reverse-registrar'
 func.tags = ['ReverseRegistrar']
-func.dependencies = ['ONSRegistry', 'Root']
+func.dependencies = ['TomoNsRegistry', 'Root']
 
 export default func

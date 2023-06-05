@@ -7,7 +7,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
-  const registry = await ethers.getContract('ONSRegistry')
+  const registry = await ethers.getContract('TomoNsRegistry')
   const dnssec = await ethers.getContract('DNSSECImpl')
 
   await deploy('TLDPublicSuffixList', {
@@ -29,6 +29,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 func.id = 'dns-registrar'
 func.tags = ['DNSRegistrar']
-func.dependencies = ['ONSRegistry', 'DNSSecOracle']
+func.dependencies = ['TomoNsRegistry', 'DNSSecOracle']
 
 export default func

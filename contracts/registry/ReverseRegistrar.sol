@@ -1,6 +1,6 @@
 pragma solidity >=0.8.4;
 
-import "./ONS.sol";
+import "./TomoNs.sol";
 import "./IReverseRegistrar.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../root/Controllable.sol";
@@ -16,7 +16,7 @@ bytes32 constant ADDR_REVERSE_NODE = 0x91d1777781884d03a6757a803996e38de2a42967f
 // namehash('addr.reverse')
 
 contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
-    ONS public immutable ons;
+    TomoNs public immutable tomoNs;
     NameResolver public defaultResolver;
 
     event ReverseClaimed(address indexed addr, bytes32 indexed node);
@@ -24,14 +24,14 @@ contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
 
     /**
      * @dev Constructor
-     * @param onsAddr The address of the ONS registry.
+     * @param tomoNsAddr The address of the TomoNs registry.
      */
-    constructor(ONS onsAddr) {
-        ons = onsAddr;
+    constructor(TomoNs tomoNsAddr) {
+        tomoNs = tomoNsAddr;
 
         // Assign ownership of the reverse record to our deployer
         ReverseRegistrar oldRegistrar = ReverseRegistrar(
-            onsAddr.owner(ADDR_REVERSE_NODE)
+            tomoNsAddr.owner(ADDR_REVERSE_NODE)
         );
         if (address(oldRegistrar) != address(0x0)) {
             oldRegistrar.claim(msg.sender);
@@ -42,7 +42,7 @@ contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
         require(
             addr == msg.sender ||
                 controllers[msg.sender] ||
-                ons.isApprovedForAll(addr, msg.sender) ||
+                tomoNs.isApprovedForAll(addr, msg.sender) ||
                 ownsContract(addr),
             "ReverseRegistrar: Caller is not a controller or authorised by address or the address itself"
         );
@@ -59,22 +59,22 @@ contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
     }
 
     /**
-     * @dev Transfers ownership of the reverse ONS record associated with the
+     * @dev Transfers ownership of the reverse TomoNs record associated with the
      *      calling account.
-     * @param owner The address to set as the owner of the reverse record in ONS.
-     * @return The ONS node hash of the reverse record.
+     * @param owner The address to set as the owner of the reverse record in TomoNs.
+     * @return The TomoNs node hash of the reverse record.
      */
     function claim(address owner) public override returns (bytes32) {
         return claimForAddr(msg.sender, owner, address(defaultResolver));
     }
 
     /**
-     * @dev Transfers ownership of the reverse ONS record associated with the
+     * @dev Transfers ownership of the reverse TomoNs record associated with the
      *      calling account.
      * @param addr The reverse record to set
-     * @param owner The address to set as the owner of the reverse record in ONS.
+     * @param owner The address to set as the owner of the reverse record in TomoNs.
      * @param resolver The resolver of the reverse node
-     * @return The ONS node hash of the reverse record.
+     * @return The TomoNs node hash of the reverse record.
      */
     function claimForAddr(
         address addr,
@@ -86,16 +86,16 @@ contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
             abi.encodePacked(ADDR_REVERSE_NODE, labelHash)
         );
         emit ReverseClaimed(addr, reverseNode);
-        ons.setSubnodeRecord(ADDR_REVERSE_NODE, labelHash, owner, resolver, 0);
+        tomoNs.setSubnodeRecord(ADDR_REVERSE_NODE, labelHash, owner, resolver, 0);
         return reverseNode;
     }
 
     /**
-     * @dev Transfers ownership of the reverse ONS record associated with the
+     * @dev Transfers ownership of the reverse TomoNs record associated with the
      *      calling account.
-     * @param owner The address to set as the owner of the reverse record in ONS.
+     * @param owner The address to set as the owner of the reverse record in TomoNs.
      * @param resolver The address of the resolver to set; 0 to leave unchanged.
-     * @return The ONS node hash of the reverse record.
+     * @return The TomoNs node hash of the reverse record.
      */
     function claimWithResolver(address owner, address resolver)
         public
@@ -106,11 +106,11 @@ contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
     }
 
     /**
-     * @dev Sets the `name()` record for the reverse ONS record associated with
+     * @dev Sets the `name()` record for the reverse TomoNs record associated with
      * the calling account. First updates the resolver to the default reverse
      * resolver if necessary.
      * @param name The name to set for this address.
-     * @return The ONS node hash of the reverse record.
+     * @return The TomoNs node hash of the reverse record.
      */
     function setName(string memory name) public override returns (bytes32) {
         return
@@ -123,14 +123,14 @@ contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
     }
 
     /**
-     * @dev Sets the `name()` record for the reverse ONS record associated with
+     * @dev Sets the `name()` record for the reverse TomoNs record associated with
      * the account provided. Updates the resolver to a designated resolver
      * Only callable by controllers and authorised users
      * @param addr The reverse record to set
      * @param owner The owner of the reverse node
      * @param resolver The resolver of the reverse node
      * @param name The name to set for this address.
-     * @return The ONS node hash of the reverse record.
+     * @return The TomoNs node hash of the reverse record.
      */
     function setNameForAddr(
         address addr,
@@ -146,7 +146,7 @@ contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
     /**
      * @dev Returns the node hash for a given account's reverse records.
      * @param addr The address to hash
-     * @return The ONS node hash.
+     * @return The TomoNs node hash.
      */
     function node(address addr) public pure override returns (bytes32) {
         return

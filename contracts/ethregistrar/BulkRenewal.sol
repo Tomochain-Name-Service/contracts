@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ~0.8.17;
+pragma solidity ~0.8.12;
 
-import "../registry/ONS.sol";
+import "../registry/TomoNs.sol";
 import "./ETHRegistrarController.sol";
 import "./IETHRegistrarController.sol";
 import "../resolvers/Resolver.sol";
@@ -14,14 +14,14 @@ contract BulkRenewal is IBulkRenewal {
     bytes32 private constant ETH_NAMEHASH =
         0x070904f45402bbf3992472be342c636609db649a8ec20a8aaa65faaafd4b8701;
 
-    ONS public immutable ons;
+    TomoNs public immutable tomoNs;
 
-    constructor(ONS _ons) {
-        ons = _ons;
+    constructor(TomoNs _tomoNs) {
+        tomoNs = _tomoNs;
     }
 
     function getController() internal view returns (ETHRegistrarController) {
-        Resolver r = Resolver(ons.resolver(ETH_NAMEHASH));
+        Resolver r = Resolver(tomoNs.resolver(ETH_NAMEHASH));
         return
             ETHRegistrarController(
                 r.interfaceImplementer(

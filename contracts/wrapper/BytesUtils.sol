@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ~0.8.17;
+pragma solidity ~0.8.12;
 
 library BytesUtils {
     /*
@@ -21,8 +21,8 @@ library BytesUtils {
     }
 
     /**
-     * @dev Returns the ONS namehash of a ONS-encoded name.
-     * @param self The ONS-encoded name to hash.
+     * @dev Returns the TomoNs namehash of a TomoNs-encoded name.
+     * @param self The TomoNs-encoded name to hash.
      * @param offset The offset at which to start hashing.
      * @return The namehash of the name.
      */
@@ -41,7 +41,7 @@ library BytesUtils {
     }
 
     /**
-     * @dev Returns the keccak-256 hash of a ONS-encoded label, and the offset to the start of the next label.
+     * @dev Returns the keccak-256 hash of a TomoNs-encoded label, and the offset to the start of the next label.
      * @param self The byte string to read a label from.
      * @param idx The index to read a label at.
      * @return labelhash The hash of the label at the specified index, or 0 if it is the last label.

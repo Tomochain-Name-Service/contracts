@@ -7,7 +7,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer, owner } = await getNamedAccounts()
 
-  const registry = await ethers.getContract('ONSRegistry', owner)
+  const registry = await ethers.getContract('TomoNsRegistry', owner)
   const registrar = await ethers.getContract('BaseRegistrarImplementation', owner)
   const metadata = await ethers.getContract('StaticMetadataService', owner)
 
@@ -37,7 +37,7 @@ func.tags = ['NameWrapper']
 func.dependencies = [
   'BaseRegistrarImplementation',
   'StaticMetadataService',
-  'ONSRegistry',
+  'TomoNsRegistry',
 ]
 
 export default func

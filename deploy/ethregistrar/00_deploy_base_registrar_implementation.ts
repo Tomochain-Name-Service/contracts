@@ -10,16 +10,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer, owner } = await getNamedAccounts()
 
-  if (!network.tags.use_root) {
-    return true
-  }
+  // if (!network.tags.use_root) {
+  //   return true
+  // }
 
-  const registry = await ethers.getContract('ONSRegistry')
+  const registry = await ethers.getContract('TomoNsRegistry')
   const root = await ethers.getContract('Root')
-
+  console.log({ra: registry.address, hash: namehash.hash('tomo')})
   await deploy('BaseRegistrarImplementation', {
     from: deployer,
-    args: [registry.address, namehash.hash('op')],
+    args: [registry.address, namehash.hash('tomo')],
     log: true,
   })
 
@@ -29,8 +29,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Transferring ownership of registrar to owner (tx: ${tx1.hash})...`)
   await tx1.wait()
 
-  const tx2 = await root.connect(await ethers.getSigner(owner)).setSubnodeOwner('0x' + keccak256('op'), registrar.address)
-  console.log(`Setting owner of op node to registrar on root (tx: ${tx2.hash})...`)
+  const tx2 = await root.connect(await ethers.getSigner(owner)).setSubnodeOwner('0x' + keccak256('tomo'), registrar.address)
+  console.log(`Setting owner of tomo node to registrar on root (tx: ${tx2.hash})...`)
   await tx2.wait()
 
   return true
@@ -38,6 +38,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 func.id = 'registrar'
 func.tags = ['BaseRegistrarImplementation']
-func.dependencies = ['ONSRegistry', 'Root']
+func.dependencies = ['TomoNsRegistry', 'Root']
 
 export default func

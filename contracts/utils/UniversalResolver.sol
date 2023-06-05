@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.17 <0.9.0;
+pragma solidity >=0.8.12 <0.9.0;
 
 import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {LowLevelCallUtils} from "./LowLevelCallUtils.sol";
-import {ONS} from "../registry/ONS.sol";
+import {TomoNs} from "../registry/TomoNs.sol";
 import {IExtendedResolver} from "../resolvers/profiles/IExtendedResolver.sol";
 import {Resolver, INameResolver, IAddrResolver} from "../resolvers/Resolver.sol";
 import {NameEncoder} from "./NameEncoder.sol";
@@ -20,22 +20,22 @@ error OffchainLookup(
 
 /**
  * The Universal Resolver is a contract that handles the work of resolving a name entirely onchain,
- * making it possible to make a single smart contract call to resolve an ONS name.
+ * making it possible to make a single smart contract call to resolve an TomoNs name.
  */
 contract UniversalResolver is IExtendedResolver, ERC165 {
     using Address for address;
     using NameEncoder for string;
     using BytesUtils for bytes;
 
-    ONS public immutable registry;
+    TomoNs public immutable registry;
 
     constructor(address _registry) {
-        registry = ONS(_registry);
+        registry = TomoNs(_registry);
     }
 
     /**
-     * @dev Performs ONS name resolution for the supplied name and resolution data.
-     * @param name The name to resolve, in normalised and ONS-encoded form.
+     * @dev Performs TomoNs name resolution for the supplied name and resolution data.
+     * @param name The name to resolve, in normalised and TomoNs-encoded form.
      * @param data The resolution data, as specified in ONSIP-10.
      * @return The result of resolving the name.
      */
@@ -75,8 +75,8 @@ contract UniversalResolver is IExtendedResolver, ERC165 {
     }
 
     /**
-     * @dev Performs ONS name reverse resolution for the supplied reverse name.
-     * @param reverseName The reverse name to resolve, in normalised and ONS-encoded form. e.g. b6E040C9ECAaE172a89bD561c5F73e1C48d28cd9.addr.reverse
+     * @dev Performs TomoNs name reverse resolution for the supplied reverse name.
+     * @param reverseName The reverse name to resolve, in normalised and TomoNs-encoded form. e.g. b6E040C9ECAaE172a89bD561c5F73e1C48d28cd9.addr.reverse
      * @return The resolved name, the resolved address, the reverse resolver address, and the resolver address.
      */
     function reverse(bytes calldata reverseName)
@@ -215,7 +215,7 @@ contract UniversalResolver is IExtendedResolver, ERC165 {
     /**
      * @dev Finds a resolver by recursively querying the registry, starting at the longest name and progressively
      *      removing labels until it finds a result.
-     * @param name The name to resolve, in ONS-encoded and normalised form.
+     * @param name The name to resolve, in TomoNs-encoded and normalised form.
      * @return The Resolver responsible for this name, and the namehash of the full name.
      */
     function findResolver(bytes calldata name)

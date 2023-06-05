@@ -9,32 +9,32 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer, owner } = await getNamedAccounts()
 
-  await deploy('ONSRegistry', {
+  await deploy('TomoNsRegistry', {
     from: deployer,
     args: [],
     log: true,
   })
 
   if (!network.tags.use_root) {
-    const registry = await ethers.getContract('ONSRegistry')
+    const registry = await ethers.getContract('TomoNsRegistry')
     const rootOwner = await registry.owner(ZERO_HASH)
     switch (rootOwner) {
       case deployer:
         const tx = await registry.setOwner(ZERO_HASH, owner, { from: deployer })
-        console.log('Setting final owner of root node on registry (tx:${tx.hash})...')
+        console.log(`Setting final owner of root node on registry (tx:${tx.hash})...`)
         await tx.wait()
         break
       case owner:
         break
       default:
-        console.log(`WARNING: ONS registry root is owned by ${rootOwner}; cannot transfer to owner`)
+        console.log(`WARNING: TomoNs registry root is owned by ${rootOwner}; cannot transfer to owner`)
     }
   }
 
   return true
 }
 
-func.id = 'ons'
-func.tags = ['ONSRegistry']
+func.id = 'TomoNsRegistry'
+func.tags = ['TomoNsRegistry']
 
 export default func

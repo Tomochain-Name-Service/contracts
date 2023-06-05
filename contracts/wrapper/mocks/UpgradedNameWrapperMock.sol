@@ -1,21 +1,21 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 import "../INameWrapper.sol";
-import "../../registry/ONS.sol";
+import "../../registry/TomoNs.sol";
 import "../../ethregistrar/IBaseRegistrar.sol";
 
 contract UpgradedNameWrapperMock {
     address public immutable oldNameWrapper;
-    ONS public immutable ons;
+    TomoNs public immutable tomoNs;
     IBaseRegistrar public immutable registrar;
 
     constructor(
         address _oldNameWrapper,
-        ONS _ons,
+        TomoNs _tomoNs,
         IBaseRegistrar _registrar
     ) {
         oldNameWrapper = _oldNameWrapper;
-        ons = _ons;
+        tomoNs = _tomoNs;
         registrar = _registrar;
     }
 
@@ -67,14 +67,14 @@ contract UpgradedNameWrapperMock {
     ) public {
         bytes32 labelhash = keccak256(bytes(label));
         bytes32 node = keccak256(abi.encodePacked(parentNode, labelhash));
-        address owner = ons.owner(node);
+        address owner = tomoNs.owner(node);
         require(
             msg.sender == oldNameWrapper ||
                 owner == msg.sender ||
-                ons.isApprovedForAll(owner, msg.sender),
+                tomoNs.isApprovedForAll(owner, msg.sender),
             "Not owner/approved or previous nameWrapper controller"
         );
-        ons.setOwner(node, address(this));
+        tomoNs.setOwner(node, address(this));
         emit SetSubnodeRecord(
             parentNode,
             label,

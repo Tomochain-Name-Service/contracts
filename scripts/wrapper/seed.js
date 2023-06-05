@@ -38,25 +38,25 @@ async function main(a) {
     console.log({
       registryAddress,registrarAddress, wrapperAddress, resolverAddress,firstAddress, name
     })
-    const OnsRegistry = await (await ethers.getContractFactory("ONSRegistry")).attach(registryAddress)
+    const OnsRegistry = await (await ethers.getContractFactory("TomoNsRegistry")).attach(registryAddress)
     const BaseRegistrar = await (await ethers.getContractFactory("BaseRegistrarImplementation")).attach(registrarAddress)
     const NameWrapper = await (await ethers.getContractFactory("NameWrapper")).attach(wrapperAddress)
     const Resolver = await (await ethers.getContractFactory("PublicResolver")).attach(resolverAddress)
-    const domain = `${name}.op`
+    const domain = `${name}.tomo`
     const namehashedname = namehash(domain)
     
     await (await BaseRegistrar.setApprovalForAll(NameWrapper.address, true)).wait()
     await (await OnsRegistry.setApprovalForAll(NameWrapper.address, true)).wait()
     await (await NameWrapper.wrapETH2LD(name, firstAddress, CAN_DO_EVERYTHING)).wait()
     console.log(`Wrapped NFT for ${domain} is available at ${getOpenSeaUrl(NameWrapper.address, namehashedname)}`)
-    await (await NameWrapper.setSubnodeOwnerAndWrap(namehash(`${name}.op`), 'sub1', firstAddress, CAN_DO_EVERYTHING)).wait()
-    await (await NameWrapper.setSubnodeOwnerAndWrap(namehash(`${name}.op`), 'sub2', firstAddress, CAN_DO_EVERYTHING)).wait()
-    await (await NameWrapper.setResolver(namehash(`sub2.${name}.op`), resolverAddress)).wait()
-    await (await Resolver.setText(namehash(`sub2.${name}.op`), 'domains.ons.nft.image', 'https://i.imgur.com/JcZESMp.png')).wait()
-    console.log(`Wrapped NFT for sub2.${name}.op is available at ${getOpenSeaUrl(NameWrapper.address, namehash(`sub2.${name}.op`))}`)
-    await (await NameWrapper.burnFuses(namehash(`sub2.${name}.op`),CANNOT_UNWRAP)).wait()
-    await (await NameWrapper.burnFuses(namehash(`sub2.${name}.op`),CANNOT_SET_RESOLVER)).wait()
-    await (await NameWrapper.unwrap(namehash(`${name}.op`), labelhash('sub1'), firstAddress)).wait()
+    await (await NameWrapper.setSubnodeOwnerAndWrap(namehash(`${name}.tomo`), 'sub1', firstAddress, CAN_DO_EVERYTHING)).wait()
+    await (await NameWrapper.setSubnodeOwnerAndWrap(namehash(`${name}.tomo`), 'sub2', firstAddress, CAN_DO_EVERYTHING)).wait()
+    await (await NameWrapper.setResolver(namehash(`sub2.${name}.tomo`), resolverAddress)).wait()
+    await (await Resolver.setText(namehash(`sub2.${name}.tomo`), 'domains.tomoNs.nft.image', 'https://i.imgur.com/JcZESMp.png')).wait()
+    console.log(`Wrapped NFT for sub2.${name}.tomo is available at ${getOpenSeaUrl(NameWrapper.address, namehash(`sub2.${name}.tomo`))}`)
+    await (await NameWrapper.burnFuses(namehash(`sub2.${name}.tomo`),CANNOT_UNWRAP)).wait()
+    await (await NameWrapper.burnFuses(namehash(`sub2.${name}.tomo`),CANNOT_SET_RESOLVER)).wait()
+    await (await NameWrapper.unwrap(namehash(`${name}.tomo`), labelhash('sub1'), firstAddress)).wait()
   }
   
   main()

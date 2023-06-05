@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
-pragma solidity >=0.8.17 <0.9.0;
+pragma solidity >=0.8.12 <0.9.0;
 
-import "../registry/ONS.sol";
+import "../registry/TomoNs.sol";
 import "./profiles/ABIResolver.sol";
 import "./profiles/AddrResolver.sol";
 import "./profiles/ContentHashResolver.sol";
@@ -31,7 +31,7 @@ contract PublicResolver is
     PubkeyResolver,
     TextResolver
 {
-    ONS immutable ons;
+    TomoNs immutable tomoNs;
     INameWrapper immutable nameWrapper;
     address immutable trustedETHController;
     address immutable trustedReverseRegistrar;
@@ -52,12 +52,12 @@ contract PublicResolver is
     );
 
     constructor(
-        ONS _ons,
+        TomoNs _tomoNs,
         INameWrapper wrapperAddress,
         address _trustedETHController,
         address _trustedReverseRegistrar
     ) {
-        ons = _ons;
+        tomoNs = _tomoNs;
         nameWrapper = wrapperAddress;
         trustedETHController = _trustedETHController;
         trustedReverseRegistrar = _trustedReverseRegistrar;
@@ -94,7 +94,7 @@ contract PublicResolver is
         ) {
             return true;
         }
-        address owner = ons.owner(node);
+        address owner = tomoNs.owner(node);
         if (owner == address(nameWrapper)) {
             owner = nameWrapper.ownerOf(uint256(node));
         }

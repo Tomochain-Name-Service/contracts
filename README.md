@@ -1,8 +1,8 @@
 # ONSdocs.opnames.org
 
-[![Build Status](https://travis-ci.org/op-domains/ons-contracts.svg?branch=master)](https://travis-ci.org/op-domains/ons-contracts)
+[![Build Status](https://travis-ci.org/op-domains/TomoNs-contracts.svg?branch=master)](https://travis-ci.org/op-domains/tomoNs-contracts)
 
-For documentation of the ONS system, see [docs.opnames.org](https://docs.opnames.org/).
+For documentation of the TomoNs system, see [docs.opnames.org](https://docs.opnames.org/).
 
 ## npm package
 
@@ -33,7 +33,7 @@ import {
 ```
 // Registry
 import '@op-domains/ons-contracts/contracts/registry/ONS.sol';
-import '@op-domains/ons-contracts/contracts/registry/ONSRegistry.sol';
+import '@op-domains/ons-contracts/contracts/registry/.sol';
 import '@op-domains/ons-contracts/contracts/registry/ONSRegistryWithFallback.sol';
 import '@op-domains/ons-contracts/contracts/registry/ReverseRegistrar.sol';
 import '@op-domains/ons-contracts/contracts/registry/TestRegistrar.sol';
@@ -65,7 +65,7 @@ The ONS registry is the core contract that lies at the heart of ONS resolution. 
 
 Interface of the ONS Registry.
 
-### ONSRegistry
+### TomoNsRegistry
 
 Implementation of the ONS Registry, the central contract used to look up resolvers and owners for domains.
 
@@ -172,7 +172,7 @@ Smart contract development tends to take a long release cycle. To prevent unnece
 
 ### Deploy
 ```bash
-./node_modules/.bin/hardhat deploy --network testnet --tags ONSRegistry
+./node_modules/.bin/hardhat deploy --network testnet --tags TomoNsRegistry
 ./node_modules/.bin/hardhat deploy --network testnet --tags Root
 ./node_modules/.bin/hardhat deploy --network testnet --tags StaticMetadataService
 ./node_modules/.bin/hardhat deploy --network testnet --tags BaseRegistrarImplementation

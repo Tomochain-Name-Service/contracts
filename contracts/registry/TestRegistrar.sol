@@ -1,6 +1,6 @@
 pragma solidity >=0.8.4;
 
-import "./ONS.sol";
+import "./TomoNs.sol";
 
 /**
  * A registrar that allocates subdomains to the first person to claim them, but
@@ -9,17 +9,17 @@ import "./ONS.sol";
 contract TestRegistrar {
     uint256 constant registrationPeriod = 4 weeks;
 
-    ONS public immutable ons;
+    TomoNs public immutable tomoNs;
     bytes32 public immutable rootNode;
     mapping(bytes32 => uint256) public expiryTimes;
 
     /**
      * Constructor.
-     * @param onsAddr The address of the ONS registry.
+     * @param tomoNsAddr The address of the TomoNs registry.
      * @param node The node that this registrar administers.
      */
-    constructor(ONS onsAddr, bytes32 node) {
-        ons = onsAddr;
+    constructor(TomoNs tomoNsAddr, bytes32 node) {
+        tomoNs = tomoNsAddr;
         rootNode = node;
     }
 
@@ -32,6 +32,6 @@ contract TestRegistrar {
         require(expiryTimes[label] < block.timestamp);
 
         expiryTimes[label] = block.timestamp + registrationPeriod;
-        ons.setSubnodeOwner(rootNode, label, owner);
+        tomoNs.setSubnodeOwner(rootNode, label, owner);
     }
 }

@@ -1,6 +1,6 @@
 pragma solidity >=0.8.4;
 
-import "../registry/ONS.sol";
+import "../registry/TomoNs.sol";
 import "./IBaseRegistrar.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -8,9 +8,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract BaseRegistrarImplementation is ERC721, IBaseRegistrar, Ownable {
     // A map of expiry times
     mapping(uint256 => uint256) expiries;
-    // The ONS registry
-    ONS public ons;
-    // The namehash of the TLD this registrar owns (eg, .op)
+    // The TomoNs registry
+    TomoNs public tomoNs;
+    // The namehash of the TLD this registrar owns (eg, .tomo)
     bytes32 public baseNode;
     // A map of addresses that are authorised to register and renew names.
     mapping(address => bool) public controllers;
@@ -53,13 +53,13 @@ contract BaseRegistrarImplementation is ERC721, IBaseRegistrar, Ownable {
             isApprovedForAll(owner, spender));
     }
 
-    constructor(ONS _ons, bytes32 _baseNode) ERC721("", "") {
-        ons = _ons;
+    constructor(TomoNs _tomoNs, bytes32 _baseNode) ERC721("", "") {
+        tomoNs = _tomoNs;
         baseNode = _baseNode;
     }
 
     modifier live() {
-        require(ons.owner(baseNode) == address(this));
+        require(tomoNs.owner(baseNode) == address(this));
         _;
     }
 
@@ -98,7 +98,7 @@ contract BaseRegistrarImplementation is ERC721, IBaseRegistrar, Ownable {
 
     // Set the resolver for the TLD this registrar manages.
     function setResolver(address resolver) external override onlyOwner {
-        ons.setResolver(baseNode, resolver);
+        tomoNs.setResolver(baseNode, resolver);
     }
 
     // Returns the expiration timestamp of the specified id.
@@ -159,7 +159,7 @@ contract BaseRegistrarImplementation is ERC721, IBaseRegistrar, Ownable {
         }
         _mint(owner, id);
         if (updateRegistry) {
-            ons.setSubnodeOwner(baseNode, bytes32(id), owner);
+            tomoNs.setSubnodeOwner(baseNode, bytes32(id), owner);
         }
 
         emit NameRegistered(id, owner, block.timestamp + duration);
@@ -185,11 +185,11 @@ contract BaseRegistrarImplementation is ERC721, IBaseRegistrar, Ownable {
     }
 
     /**
-     * @dev Reclaim ownership of a name in ONS, if you own it in the registrar.
+     * @dev Reclaim ownership of a name in TomoNs, if you own it in the registrar.
      */
     function reclaim(uint256 id, address owner) external override live {
         require(_isApprovedOrOwner(msg.sender, id));
-        ons.setSubnodeOwner(baseNode, bytes32(id), owner);
+        tomoNs.setSubnodeOwner(baseNode, bytes32(id), owner);
     }
 
     function supportsInterface(bytes4 interfaceID)

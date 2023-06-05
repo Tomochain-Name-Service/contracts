@@ -20,7 +20,7 @@ async function main() {
     METADATA_ADDRESS:metadataAddress,
     WRAPPER_ADDRESS:wrapperAddress,
     RESOLVER_ADDRESS:resolverAddress,
-    METADATA_HOST:metadataHost = 'ons-metadata-service.appspot.com'
+    METADATA_HOST:metadataHost = 'metadata.toumas.work'
   } = parsedFile)
   if(network.name === 'localhost'){
     const addresses = JSON.parse(fs.readFileSync(onsAppSourcePath, 'utf8'))
@@ -36,6 +36,7 @@ async function main() {
     registrarAddress = '0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85'
     metadataUrl = `https://${metadataHost}/name/0x{id}`
   }
+
   const [deployer] = await ethers.getSigners()
     
   console.log(`Deploying contracts to ${network.name} with the account:${deployer.address}`)

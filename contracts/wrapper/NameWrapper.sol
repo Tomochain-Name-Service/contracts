@@ -1,12 +1,12 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ~0.8.17;
+pragma solidity ~0.8.12;
 
 import {ERC1155Fuse, IERC165, OperationProhibited} from "./ERC1155Fuse.sol";
 import {Controllable} from "./Controllable.sol";
 import {INameWrapper, CANNOT_UNWRAP, CANNOT_BURN_FUSES, CANNOT_TRANSFER, CANNOT_SET_RESOLVER, CANNOT_SET_TTL, CANNOT_CREATE_SUBDOMAIN, PARENT_CANNOT_CONTROL, CAN_DO_EVERYTHING} from "./INameWrapper.sol";
 import {INameWrapperUpgrade} from "./INameWrapperUpgrade.sol";
 import {IMetadataService} from "./IMetadataService.sol";
-import {ONS} from "../registry/ONS.sol";
+import {TomoNs} from "../registry/TomoNs.sol";
 import {IBaseRegistrar} from "../ethregistrar/IBaseRegistrar.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -33,14 +33,14 @@ contract NameWrapper is
     ERC20Recoverable
 {
     using BytesUtils for bytes;
-    ONS public immutable override ons;
+    TomoNs public immutable override tomoNs;
     IBaseRegistrar public immutable override registrar;
     IMetadataService public override metadataService;
     mapping(bytes32 => bytes) public override names;
     string public constant name = "NameWrapper";
 
     bytes32 private constant ETH_NODE =
-        0x070904f45402bbf3992472be342c636609db649a8ec20a8aaa65faaafd4b8701;
+        0xee7289196899d8c5bc40150453f87a5ebf33e301b7ed2537d6cc0ba5caeadcd5;
     bytes32 private constant ROOT_NODE =
         0x0000000000000000000000000000000000000000000000000000000000000000;
 
@@ -48,11 +48,11 @@ contract NameWrapper is
     uint64 private constant MAX_EXPIRY = type(uint64).max;
 
     constructor(
-        ONS _ons,
+        TomoNs _tomoNs,
         IBaseRegistrar _registrar,
         IMetadataService _metadataService
     ) {
-        ons = _ons;
+        tomoNs = _tomoNs;
         registrar = _registrar;
         metadataService = _metadataService;
 
@@ -91,7 +91,7 @@ contract NameWrapper is
 
     /**
      * @notice Gets the owner of a name
-     * @param id Label as a string of the .op domain to wrap
+     * @param id Label as a string of the .tomo domain to wrap
      * @return owner The owner of the name
      */
 
@@ -106,7 +106,7 @@ contract NameWrapper is
 
     /**
      * @notice Gets the data for a name
-     * @param id Label as a string of the .op domain to wrap
+     * @param id Label as a string of the .tomo domain to wrap
      * @return address The owner of the name
      * @return uint32 Fuses of the name
      * @return uint64 Expiry of when the fuses expire for the name
@@ -162,14 +162,14 @@ contract NameWrapper is
     {
         if (address(upgradeContract) != address(0)) {
             registrar.setApprovalForAll(address(upgradeContract), false);
-            ons.setApprovalForAll(address(upgradeContract), false);
+            tomoNs.setApprovalForAll(address(upgradeContract), false);
         }
 
         upgradeContract = _upgradeAddress;
 
         if (address(upgradeContract) != address(0)) {
             registrar.setApprovalForAll(address(upgradeContract), true);
-            ons.setApprovalForAll(address(upgradeContract), true);
+            tomoNs.setApprovalForAll(address(upgradeContract), true);
         }
     }
 
@@ -204,9 +204,9 @@ contract NameWrapper is
     }
 
     /**
-     * @notice Wraps a .op domain, creating a new token and sending the original ERC721 token to this contract
-     * @dev Can be called by the owner of the name on the .op registrar or an authorised caller on the registrar
-     * @param label Label as a string of the .op domain to wrap
+     * @notice Wraps a .tomo domain, creating a new token and sending the original ERC721 token to this contract
+     * @dev Can be called by the owner of the name on the .tomo registrar or an authorised caller on the registrar
+     * @param label Label as a string of the .tomo domain to wrap
      * @param wrappedOwner Owner of the name in this contract
      * @param fuses Initial fuses to set
      * @param expiry When the fuses will expire
@@ -236,22 +236,22 @@ contract NameWrapper is
         // transfer the token from the user to this contract
         registrar.transferFrom(registrant, address(this), tokenId);
 
-        // transfer the ons record back to the new owner (this contract)
+        // transfer the TomoNs record back to the new owner (this contract)
         registrar.reclaim(tokenId, address(this));
 
         return _wrapETH2LD(label, wrappedOwner, fuses, expiry, resolver);
     }
 
     /**
-     * @dev Registers a new .op second-level domain and wraps it.
+     * @dev Registers a new .tomo second-level domain and wraps it.
      *      Only callable by authorised controllers.
-     * @param label The label to register (Eg, 'foo' for 'foo.op').
+     * @param label The label to register (Eg, 'foo' for 'foo.tomo').
      * @param wrappedOwner The owner of the wrapped name.
      * @param duration The duration, in seconds, to register the name for.
-     * @param resolver The resolver address to set on the ONS registry (optional).
+     * @param resolver The resolver address to set on the TomoNs registry (optional).
      * @param fuses Initial fuses to set
      * @param expiry When the fuses will expire
-     * @return registrarExpiry The expiry date of the new name on the .op registrar, in seconds since the Unix epoch.
+     * @return registrarExpiry The expiry date of the new name on the .tomo registrar, in seconds since the Unix epoch.
      */
 
     function registerAndWrapETH2LD(
@@ -268,11 +268,11 @@ contract NameWrapper is
     }
 
     /**
-     * @notice Renews a .op second-level domain.
+     * @notice Renews a .tomo second-level domain.
      * @dev Only callable by authorised controllers.
-     * @param tokenId The hash of the label to register (eg, `keccak256('foo')`, for 'foo.op').
+     * @param tokenId The hash of the label to register (eg, `keccak256('foo')`, for 'foo.tomo').
      * @param duration The number of seconds to renew the name for.
-     * @return expires The expiry date of the name on the .op registrar, in seconds since the Unix epoch.
+     * @return expires The expiry date of the name on the .tomo registrar, in seconds since the Unix epoch.
      */
 
     function renew(
@@ -300,9 +300,9 @@ contract NameWrapper is
     }
 
     /**
-     * @notice Wraps a non .op domain, of any kind. Could be a DNSSEC name vitalik.xyz or a subdomain
+     * @notice Wraps a non .tomo domain, of any kind. Could be a DNSSEC name vitalik.xyz or a subdomain
      * @dev Can be called by the owner in the registry or an authorised caller in the registry
-     * @param name The name to wrap, in ONS format
+     * @param name The name to wrap, in TomoNs format
      * @param wrappedOwner Owner of the name in this contract
      * @param resolver Resolver contract
      */
@@ -320,26 +320,26 @@ contract NameWrapper is
             revert IncompatibleParent();
         }
 
-        address owner = ons.owner(node);
+        address owner = tomoNs.owner(node);
 
-        if (owner != msg.sender && !ons.isApprovedForAll(owner, msg.sender)) {
+        if (owner != msg.sender && !tomoNs.isApprovedForAll(owner, msg.sender)) {
             revert Unauthorised(node, msg.sender);
         }
 
         if (resolver != address(0)) {
-            ons.setResolver(node, resolver);
+            tomoNs.setResolver(node, resolver);
         }
 
-        ons.setOwner(node, address(this));
+        tomoNs.setOwner(node, address(this));
 
         _wrap(node, name, wrappedOwner, 0, 0);
     }
 
     /**
-     * @notice Unwraps a .op domain. e.g. vitalik.op
+     * @notice Unwraps a .tomo domain. e.g. vitalik.tomo
      * @dev Can be called by the owner in the wrapper or an authorised caller in the wrapper
-     * @param labelhash Labelhash of the .op domain
-     * @param registrant Sets the owner in the .op registrar to this address
+     * @param labelhash Labelhash of the .tomo domain
+     * @param registrant Sets the owner in the .tomo registrar to this address
      * @param controller Sets the owner in the registry to this address
      */
 
@@ -363,7 +363,7 @@ contract NameWrapper is
     }
 
     /**
-     * @notice Unwraps a non .op domain, of any kind. Could be a DNSSEC name vitalik.xyz or a subdomain
+     * @notice Unwraps a non .tomo domain, of any kind. Could be a DNSSEC name vitalik.xyz or a subdomain
      * @dev Can be called by the owner in the wrapper or an authorised caller in the wrapper
      * @param parentNode Parent namehash of the name e.g. vitalik.xyz would be namehash('xyz')
      * @param labelhash Labelhash of the name, e.g. vitalik.xyz would be keccak256('vitalik')
@@ -409,10 +409,10 @@ contract NameWrapper is
     }
 
     /**
-     * @notice Upgrades a .op wrapped domain by calling the wrapETH2LD function of the upgradeContract
+     * @notice Upgrades a .tomo wrapped domain by calling the wrapETH2LD function of the upgradeContract
      *     and burning the token of this contract
      * @dev Can be called by the owner of the name in this contract
-     * @param label Label as a string of the .op name to upgrade
+     * @param label Label as a string of the .tomo name to upgrade
      * @param wrappedOwner The owner of the wrapped name
      */
 
@@ -435,7 +435,7 @@ contract NameWrapper is
     }
 
     /**
-     * @notice Upgrades a non .op domain of any kind. Could be a DNSSEC name vitalik.xyz or a subdomain
+     * @notice Upgrades a non .tomo domain of any kind. Could be a DNSSEC name vitalik.xyz or a subdomain
      * @dev Can be called by the owner or an authorised caller
      * Requires upgraded Namewrapper to permit old Namewrapper to call `setSubnodeRecord` for all names
      * @param parentNode Namehash of the parent name
@@ -465,7 +465,7 @@ contract NameWrapper is
     }
 
     /** 
-    /* @notice Sets fuses of a name that you own the parent of. Can also be called by the owner of a .op name
+    /* @notice Sets fuses of a name that you own the parent of. Can also be called by the owner of a .tomo name
      * @param parentNode Parent namehash of the name e.g. vitalik.xyz would be namehash('xyz')
      * @param labelhash Labelhash of the name, e.g. vitalik.xyz would be keccak256('vitalik')
      * @param fuses Fuses to burn
@@ -543,7 +543,7 @@ contract NameWrapper is
         expiry = _checkParentFusesAndExpiry(parentNode, node, fuses, expiry);
 
         if (!isWrapped(node)) {
-            ons.setSubnodeOwner(parentNode, labelhash, address(this));
+            tomoNs.setSubnodeOwner(parentNode, labelhash, address(this));
             _addLabelAndWrap(parentNode, node, label, owner, fuses, expiry);
         } else {
             _updateName(parentNode, node, label, owner, fuses, expiry);
@@ -580,7 +580,7 @@ contract NameWrapper is
         node = _makeNode(parentNode, labelhash);
         expiry = _checkParentFusesAndExpiry(parentNode, node, fuses, expiry);
         if (!isWrapped(node)) {
-            ons.setSubnodeRecord(
+            tomoNs.setSubnodeRecord(
                 parentNode,
                 labelhash,
                 address(this),
@@ -589,7 +589,7 @@ contract NameWrapper is
             );
             _addLabelAndWrap(parentNode, node, label, owner, fuses, expiry);
         } else {
-            ons.setSubnodeRecord(
+            tomoNs.setSubnodeRecord(
                 parentNode,
                 labelhash,
                 address(this),
@@ -601,7 +601,7 @@ contract NameWrapper is
     }
 
     /**
-     * @notice Sets records for the name in the ONS Registry
+     * @notice Sets records for the name in the TomoNs Registry
      * @param node Namehash of the name to set a record for
      * @param owner New owner in the registry
      * @param resolver Resolver contract
@@ -622,7 +622,7 @@ contract NameWrapper is
             CANNOT_TRANSFER | CANNOT_SET_RESOLVER | CANNOT_SET_TTL
         )
     {
-        ons.setRecord(node, address(this), resolver, ttl);
+        tomoNs.setRecord(node, address(this), resolver, ttl);
         (address oldOwner, , ) = getData(uint256(node));
         _transfer(oldOwner, owner, uint256(node), 1, "");
     }
@@ -639,7 +639,7 @@ contract NameWrapper is
         onlyTokenOwner(node)
         operationAllowed(node, CANNOT_SET_RESOLVER)
     {
-        ons.setResolver(node, resolver);
+        tomoNs.setResolver(node, resolver);
     }
 
     /**
@@ -654,7 +654,7 @@ contract NameWrapper is
         onlyTokenOwner(node)
         operationAllowed(node, CANNOT_SET_TTL)
     {
-        ons.setTTL(node, ttl);
+        tomoNs.setTTL(node, ttl);
     }
 
     /**
@@ -683,7 +683,7 @@ contract NameWrapper is
 
     modifier canCallSetSubnodeOwner(bytes32 node, bytes32 labelhash) {
         bytes32 subnode = _makeNode(node, labelhash);
-        address owner = ons.owner(subnode);
+        address owner = tomoNs.owner(subnode);
 
         if (owner == address(0)) {
             (, uint32 fuses, ) = getData(uint256(node));
@@ -727,7 +727,7 @@ contract NameWrapper is
     function isWrapped(bytes32 node) public view override returns (bool) {
         return
             ownerOf(uint256(node)) != address(0) &&
-            ons.owner(node) == address(this);
+            tomoNs.owner(node) == address(this);
     }
 
     function onERC721Received(
@@ -736,7 +736,7 @@ contract NameWrapper is
         uint256 tokenId,
         bytes calldata data
     ) public override returns (bytes4) {
-        //check if it's the op registrar ERC721
+        //check if it's the tomo registrar ERC721
         if (msg.sender != address(registrar)) {
             revert IncorrectTokenType();
         }
@@ -756,7 +756,7 @@ contract NameWrapper is
             revert LabelMismatch(labelhashFromData, labelhash);
         }
 
-        // transfer the ons record back to the new owner (this contract)
+        // transfer the TomoNs record back to the new owner (this contract)
         registrar.reclaim(uint256(labelhash), address(this));
 
         _wrapETH2LD(label, owner, fuses, expiry, resolver);
@@ -926,7 +926,7 @@ contract NameWrapper is
         uint64 maxExpiry
     ) internal pure returns (uint64) {
         // Expiry cannot be more than maximum allowed
-        // .op names will check registrar, non .op check parent
+        // .tomo names will check registrar, non .tomo check parent
         if (expiry > maxExpiry) {
             expiry = maxExpiry;
         }
@@ -966,7 +966,7 @@ contract NameWrapper is
             expiry
         );
         if (resolver != address(0)) {
-            ons.setResolver(node, resolver);
+            tomoNs.setResolver(node, resolver);
         }
 
         return expiry;
@@ -979,7 +979,7 @@ contract NameWrapper is
 
         // Burn token and fuse data
         _burn(uint256(node));
-        ons.setOwner(node, owner);
+        tomoNs.setOwner(node, owner);
 
         emit NameUnwrapped(node, owner);
     }

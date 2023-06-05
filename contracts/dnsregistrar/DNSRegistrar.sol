@@ -7,7 +7,7 @@ import "@ensdomains/buffer/contracts/Buffer.sol";
 import "../dnssec-oracle/BytesUtils.sol";
 import "../dnssec-oracle/DNSSEC.sol";
 import "../dnssec-oracle/RRUtils.sol";
-import "../registry/ONSRegistry.sol";
+import "../registry/TomoNs.sol";
 import "../root/Root.sol";
 import "../resolvers/profiles/AddrResolver.sol";
 import "./DNSClaimChecker.sol";
@@ -15,8 +15,8 @@ import "./PublicSuffixList.sol";
 import "./IDNSRegistrar.sol";
 
 /**
- * @dev An ONS registrar that allows the owner of a ONS name to claim the
- *      corresponding name in ONS.
+ * @dev An TomoNs registrar that allows the owner of a TomoNs name to claim the
+ *      corresponding name in TomoNs.
  */
 // TODO: Record inception time of any claimed name, so old proofs can't be used to revert changes to a name.
 contract DNSRegistrar is IDNSRegistrar, IERC165 {
@@ -24,7 +24,7 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
     using Buffer for Buffer.buffer;
     using RRUtils for *;
 
-    ONS public immutable ons;
+    TomoNs public immutable tomoNs;
     DNSSEC public immutable oracle;
     PublicSuffixList public suffixes;
     // A mapping of the most recent signatures seen for each claimed domain.
@@ -52,20 +52,20 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
     constructor(
         DNSSEC _dnssec,
         PublicSuffixList _suffixes,
-        ONS _ons
+        TomoNs _tomoNs
     ) {
         oracle = _dnssec;
         emit NewOracle(address(oracle));
         suffixes = _suffixes;
         emit NewPublicSuffixList(address(suffixes));
-        ons = _ons;
+        tomoNs = _tomoNs;
     }
 
     /**
-     * @dev This contract's owner-only functions can be invoked by the owner of the ONS root.
+     * @dev This contract's owner-only functions can be invoked by the owner of the TomoNs root.
      */
     modifier onlyOwner() {
-        Root root = Root(ons.owner(bytes32(0)));
+        Root root = Root(tomoNs.owner(bytes32(0)));
         address owner = root.owner();
         require(msg.sender == owner);
         _;
@@ -89,7 +89,7 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
             name,
             input
         );
-        ons.setSubnodeOwner(rootNode, labelHash, addr);
+        tomoNs.setSubnodeOwner(rootNode, labelHash, addr);
     }
 
     function proveAndClaimWithResolver(
@@ -112,7 +112,7 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
                 "Cannot set addr if resolver is not set"
             );
             // Set ourselves as the owner so we can set a record on the resolver
-            ons.setSubnodeRecord(
+            tomoNs.setSubnodeRecord(
                 rootNode,
                 labelHash,
                 address(this),
@@ -123,9 +123,9 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
             // Set the resolver record
             AddrResolver(resolver).setAddr(node, addr);
             // Transfer the record to the owner
-            ons.setOwner(node, owner);
+            tomoNs.setOwner(node, owner);
         } else {
-            ons.setSubnodeRecord(rootNode, labelHash, owner, resolver, 0);
+            tomoNs.setSubnodeRecord(rootNode, labelHash, owner, resolver, 0);
         }
     }
 
@@ -190,17 +190,17 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
         bytes32 parentNode = enableNode(domain, offset + len + 1);
         bytes32 label = domain.keccak(offset + 1, len);
         node = keccak256(abi.encodePacked(parentNode, label));
-        address owner = ons.owner(node);
+        address owner = tomoNs.owner(node);
         require(
             owner == address(0) || owner == address(this),
             "Cannot enable a name owned by someone else"
         );
         if (owner != address(this)) {
             if (parentNode == bytes32(0)) {
-                Root root = Root(ons.owner(bytes32(0)));
+                Root root = Root(tomoNs.owner(bytes32(0)));
                 root.setSubnodeOwner(label, address(this));
             } else {
-                ons.setSubnodeOwner(parentNode, label, address(this));
+                tomoNs.setSubnodeOwner(parentNode, label, address(this));
             }
         }
         return node;

@@ -1,15 +1,16 @@
 {
-  "name": "@opdomains/ons-contracts",
+  "name": "@tomochain-name-service/tomons-contracts",
   "version": "1.0.0",
-  "description": "Optimism Name Service contracts",
+  "description": "TomoChain Name Service contracts",
   "scripts": {
     "test": "hardhat test",
     "test:local": "hardhat --network localhost testnet",
     "lint": "hardhat check",
-    "deploy": "npx hardhat deploy --network goerli",
+    "deploy": "npx hardhat deploy --network testnet",
     "build": "rm -rf ./build/deploy ./build/hardhat.config.js && hardhat compile && tsc",
     "prepublishOnly": "yarn build",
-    "pub": "yarn publish --access public"
+    "pub": "yarn publish --access public",
+    "go": "node scripts/wrapper/deploy.js"
   },
   "files": [
     "build",
@@ -30,18 +31,20 @@
     "@openzeppelin/test-helpers": "^0.5.11",
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.0.0",
+    "@types/sinon-chai": "^3.2.9",
     "chai": "^4.3.4",
     "dotenv": "^10.0.0",
     "elliptic-solidity": "^1.0.0",
-    "ethereum-waffle": "^3.3.0",
+    "ethereum-waffle": "^3.4.0",
     "ethers": "^5.6.1",
-    "hardhat": "^2.9.9",
+    "hardhat": "^2.9.1",
     "hardhat-abi-exporter": "^2.9.0",
     "hardhat-deploy": "^0.11.10",
     "hardhat-gas-reporter": "^1.0.4",
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-beta.24",
     "rfc4648": "^1.5.0",
+    "sinon-chai": "^3.7.0",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
   },
@@ -52,9 +55,11 @@
   "dependencies": {
     "@ensdomains/buffer": "^0.0.13",
     "@ensdomains/solsha1": "0.0.3",
-    "@nomiclabs/hardhat-etherscan": "^3.1.0",
+    "@nomicfoundation/hardhat-verify": "^1.0.0",
     "@openzeppelin/contracts": "^4.1.0",
-    "dns-packet": "^5.3.0"
+    "@tomochain-name-service/hardhat-verify": "^0.0.1-beta17",
+    "dns-packet": "^5.3.0",
+    "envfile": "^6.18.0"
   },
   "directories": {
     "test": "test"

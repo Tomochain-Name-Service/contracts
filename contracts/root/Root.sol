@@ -1,6 +1,6 @@
 pragma solidity ^0.8.4;
 
-import "../registry/ONS.sol";
+import "../registry/TomoNs.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Controllable.sol";
 
@@ -12,11 +12,11 @@ contract Root is Ownable, Controllable {
 
     event TLDLocked(bytes32 indexed label);
 
-    ONS public ons;
+    TomoNs public tomoNs;
     mapping(bytes32 => bool) public locked;
 
-    constructor(ONS _ons) public {
-        ons = _ons;
+    constructor(TomoNs _tomoNs) public {
+        tomoNs = _tomoNs;
     }
 
     function setSubnodeOwner(bytes32 label, address owner)
@@ -24,11 +24,11 @@ contract Root is Ownable, Controllable {
         onlyController
     {
         require(!locked[label]);
-        ons.setSubnodeOwner(ROOT_NODE, label, owner);
+        tomoNs.setSubnodeOwner(ROOT_NODE, label, owner);
     }
 
     function setResolver(address resolver) external onlyOwner {
-        ons.setResolver(ROOT_NODE, resolver);
+        tomoNs.setResolver(ROOT_NODE, resolver);
     }
 
     function lock(bytes32 label) external onlyOwner {

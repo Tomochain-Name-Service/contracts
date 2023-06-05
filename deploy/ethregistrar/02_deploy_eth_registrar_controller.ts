@@ -54,7 +54,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 func.id = 'eth-registrar'
 func.tags = ['ETHRegistrarController']
 func.dependencies = [
-  'ONSRegistry',
+  'TomoNsRegistry',
   'BaseRegistrarImplementation',
   'ExponentialPremiumPriceOracle',
   'ReverseRegistrar',

@@ -1,9 +1,9 @@
 const BaseRegistrar = require('./build/contracts/IBaseRegistrar')
 const BaseRegistrarImplementation = require('./build/contracts/BaseRegistrarImplementation')
 const BulkRenewal = require('./build/contracts/BulkRenewal')
-const ONS = require('./build/contracts/ONS')
-const ONSRegistry = require('./build/contracts/ONSRegistry')
-const ONSRegistryWithFallback = require('./build/contracts/ONSRegistryWithFallback')
+const TomoNs = require('./build/contracts/TomoNs')
+const TomoNsRegistry = require('./build/contracts/TomoNsRegistry')
+const TomoNsRegistryWithFallback = require('./build/contracts/TomoNsRegistryWithFallback')
 const ExponentialPremiumPriceOracle = require('./build/contracts/ExponentialPremiumPriceOracle')
 const ETHRegistrarController = require('./build/contracts/ETHRegistrarController')
 const FIFSRegistrar = require('./build/contracts/FIFSRegistrar')
@@ -30,9 +30,9 @@ module.exports = {
   BaseRegistrar,
   BaseRegistrarImplementation,
   BulkRenewal,
-  ONS,
-  ONSRegistry,
-  ONSRegistryWithFallback,
+  TomoNs,
+  TomoNsRegistry,
+  TomoNsRegistryWithFallback,
   ExponentialPremiumPriceOracle,
   ETHRegistrarController,
   FIFSRegistrar,

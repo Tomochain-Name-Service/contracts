@@ -2,7 +2,7 @@ import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-solhint'
 import '@nomiclabs/hardhat-truffle5'
 import '@nomiclabs/hardhat-waffle'
-import "@nomiclabs/hardhat-etherscan";
+import "@tomochain-name-service/hardhat-verify";
 import { exec as _exec } from 'child_process'
 import dotenv from 'dotenv'
 import { existsSync } from 'fs'
@@ -126,7 +126,7 @@ if (process.env.DEPLOYER_KEY) {
   real_accounts = [process.env.DEPLOYER_KEY, process.env.OWNER_KEY || process.env.DEPLOYER_KEY]
 }
 
-const config: HardhatUserConfig = {
+const config = {
   networks: {
     hardhat: {
       saveDeployments: false,
@@ -137,34 +137,29 @@ const config: HardhatUserConfig = {
       saveDeployments: false,
       tags: ['test', 'legacy', 'use_root'],
     },
-
     mainnet: {
-      url: `https://goerli.optimism.io`,
-      chainId: 1,
+      url: `https://rpc.tomochain.com`,
+      chainId: 88,
       accounts: real_accounts,
     },
-    optimism_goerli: {
-      url: 'https://goerli.optimism.io',
-      tags: ['use_root'],
-      chainId: 420,
+    testnet: {
+      url: `https://rpc.testnet.tomochain.com`,
+      chainId: 89,
       accounts: real_accounts,
+      loggingEnabled:true,
+      gasPrice: 10000000000,
+      gas: 5000000,
     },
-    goerli: {
-      url: 'https://goerli.infura.io/v3/0722a322db3e472881be79bebc2e994c',
-      tags: ['use_root'],
-      chainId: 5,
-      accounts: real_accounts,
-    }
   },
   mocha: {},
   solidity: {
     compilers: [
       {
-        version: '0.8.17',
+        version: '0.8.12',
         settings: {
           optimizer: {
             enabled: true,
-            runs: 10000,
+            //runs: 10000,
           },
         },
       },
@@ -192,7 +187,7 @@ const config: HardhatUserConfig = {
       default: 0,
     },
     owner: {
-      default: 0,
+      default: 1,
     },
   },
   external: {
@@ -207,11 +202,20 @@ const config: HardhatUserConfig = {
     apiKey: process.env.ETHERSCAN_API_KEY,
     customChains: [
       {
-        network: "goerli",
-        chainId: 5,
+        network: "testnet",
+        chainId: 89,
         urls: {
-          apiURL: "https://api-goerli.etherscan.io/api",
-          browserURL: "https://goerli.etherscan.io/"
+          apiURL: "https://testnet.tomoscan.io/api/contract/verify",
+          browserURL: "https://testnet.tomoscan.io/",
+          
+        }
+      },
+      {
+        network: "mainnet",
+        chainId: 88,
+        urls: {
+          apiURL: "https://tomoscan.io/api/contract/verify",
+          browserURL: "https://tomoscan.io/"
         }
       }
     ]

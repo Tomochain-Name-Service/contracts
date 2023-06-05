@@ -4,16 +4,17 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, network } = hre
   const { deploy } = deployments
   const { deployer, owner } = await getNamedAccounts()
 
-  if (!network.tags.use_root) {
-    return true
-  }
+  // if (!network.tags.use_root) {
+  //   return true
+  // }
 
-  const registry = await ethers.getContract('ONSRegistry')
+  const registry = await ethers.getContract('TomoNsRegistry', owner)
 
   await deploy('Root', {
     from: deployer,
@@ -44,12 +45,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     default:
       console.log(`WARNING: Root is owned by ${rootOwner}; cannot transfer to owner account`)
   }
+  
 
   return true
 }
 
 func.id = 'root'
 func.tags = ['Root']
-func.dependencies = ['ONSRegistry']
+func.dependencies = ['TomoNsRegistry']
 
 export default func
