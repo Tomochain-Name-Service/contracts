@@ -1,3 +1,9 @@
+# TOMO NS Contracts
+## Inspired by:
+- https://github.com/ensdomains/ens-contracts
+- https://github.com/op-domains/ons-contracts
+
+
 # ONSdocs.opnames.org
 
 [![Build Status](https://travis-ci.org/op-domains/TomoNs-contracts.svg?branch=master)](https://travis-ci.org/op-domains/tomoNs-contracts)
