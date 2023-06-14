@@ -1,6 +1,6 @@
 {
-  "name": "@tomochain-name-service/tomons-contracts",
-  "version": "1.0.0",
+  "name": "@tomochain-name-service/tns-contracts",
+  "version": "0.0.4",
   "description": "TomoChain Name Service contracts",
   "scripts": {
     "test": "hardhat test",
@@ -66,12 +66,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/op-domains/ons-contracts.git"
+    "url": "git+https://github.com/Tomochain-Name-Service/tns-contracts.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/op-domains/ons-contracts/issues"
+    "url": "https://github.com/Tomochain-Name-Service/tns-contracts/issues"
   },
-  "homepage": "https://github.com/op-domains/ons-contracts#readme"
+  "homepage": "https://github.com/Tomochain-Name-Service/tns-contracts#readme"
 }
