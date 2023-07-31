@@ -2,6 +2,14 @@ import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
+function wait(){
+  console.log('waiting!...')
+  for (let index = 0; index < 10000000000; index++) {
+    
+  }
+  console.log('next!')
+}
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments } = hre
   const { deploy } = deployments
@@ -28,10 +36,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const controller = await ethers.getContract('ETHRegistrarController')
 
+  wait();
+
   if (owner !== deployer) {
     const tx = await controller.transferOwnership(owner)
     console.log(`Transferring ownership of ETHRegistrarController to ${owner} (tx: ${tx.hash})...`)
     await tx.wait()
+    wait();
   }
 
   console.log('WRAPPER OWNER', await nameWrapper.owner(), await nameWrapper.signer.getAddress())
@@ -39,10 +50,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const tx1 = await nameWrapper.setController(controller.address, true)
   console.log(`Adding ETHRegistrarController as a controller of NameWrapper (tx: ${tx1.hash})...`)
   await tx1.wait()
+  wait();
 
   const tx2 = await reverseRegistrar.setController(controller.address, true)
   console.log(`Adding ETHRegistrarController as a controller of ReverseRegistrar (tx: ${tx2.hash})...`)
   await tx2.wait()
+  wait();
 
   const tx3 = await registrar.addController(controller.address)
   console.log(`Adding controller as controller on registrar (tx: ${tx3.hash})...`)

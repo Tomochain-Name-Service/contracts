@@ -5,6 +5,15 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import namehash from 'eth-ens-namehash'
 import { keccak256 } from 'js-sha3'
 
+
+function wait(){
+  console.log('waiting!...')
+  for (let index = 0; index < 10000000000; index++) {
+    
+  }
+  console.log('next!')
+}
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, network } = hre
   const { deploy } = deployments
@@ -25,9 +34,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const registrar = await ethers.getContract('BaseRegistrarImplementation')
 
+  wait();
+
   const tx1 = await registrar.transferOwnership(owner, { from: deployer })
   console.log(`Transferring ownership of registrar to owner (tx: ${tx1.hash})...`)
   await tx1.wait()
+
+  wait();
 
   const tx2 = await root.connect(await ethers.getSigner(owner)).setSubnodeOwner('0x' + keccak256('tomo'), registrar.address)
   console.log(`Setting owner of tomo node to registrar on root (tx: ${tx2.hash})...`)

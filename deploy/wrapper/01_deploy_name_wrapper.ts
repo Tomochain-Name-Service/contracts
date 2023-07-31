@@ -2,6 +2,15 @@ import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
+
+function wait(){
+  console.log('waiting!...')
+  for (let index = 0; index < 10000000000; index++) {
+    
+  }
+  console.log('next!')
+}
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments } = hre
   const { deploy } = deployments
@@ -19,11 +28,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const nameWrapper = await ethers.getContract('NameWrapper')
 
+  wait();
+
   if (owner !== deployer) {
     const tx = await nameWrapper.transferOwnership(owner)
     console.log(`Transferring ownership of NameWrapper to ${owner} (tx: ${tx.hash})...`)
     await tx.wait()
+    wait();
   }
+  
 
   const tx2 = await registrar.addController(nameWrapper.address)
   console.log(`Adding NameWrapper as controller on registrar (tx: ${tx2.hash})...`)

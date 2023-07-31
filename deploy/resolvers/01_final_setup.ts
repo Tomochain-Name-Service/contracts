@@ -8,6 +8,14 @@ const { makeInterfaceId } = require('@openzeppelin/test-helpers')
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
+function wait(){
+  console.log('waiting!...')
+  for (let index = 0; index < 10000000000; index++) {
+    
+  }
+  console.log('next!')
+}
+
 const utils = ethers.utils;
 const labelhash = (name: string) => utils.keccak256(utils.toUtf8Bytes(name))
 
@@ -34,16 +42,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const controller = await ethers.getContract('ETHRegistrarController', owner)
   const resolver = await ethers.getContract('PublicResolver', owner)
 
-  // const tx1 = await registrar.setResolver(resolver.address)
-  // console.log(`Setting resolver for .tomo to PublicResolver (tx: ${tx1.hash})...`)
-  // await tx1.wait()
+  const tx1 = await registrar.setResolver(resolver.address)
+  console.log(`Setting resolver for .tomo to PublicResolver (tx: ${tx1.hash})...`)
+  await tx1.wait()
+
+  wait();
 
   const ownerOfResolver = await registry.owner(namehash('resolver'))
   if (ownerOfResolver == ZERO_ADDRESS) {
     const tx = await root.setSubnodeOwner('0x' + keccak256('resolver'), owner)
     console.log(`Setting owner of resolver.tomo to owner on registry (tx: ${tx.hash})...`)
     await tx.wait()
-    delay(10000)
+    wait()
   } else if (ownerOfResolver != owner) {
     console.log('resolver.tomo is not owned by the owner address, not setting resolver')
     return
@@ -52,12 +62,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const tx2 = await registry.setResolver(namehash('resolver'), resolver.address)
   console.log(`Setting resolver for resolver.tomo to PublicResolver (tx: ${tx2.hash})...`)
   await tx2.wait()
-  delay(10000)
+  wait();
 
   const tx3 = await resolver['setAddr(bytes32,address)'](namehash('resolver'), resolver.address)
   console.log(`Setting address for resolver.tomo to PublicResolver (tx: ${tx3.hash})...`)
   await tx3.wait()
-  delay(10000)
+  wait();
 
   // const providerWithTomoNs = new ethers.providers.StaticJsonRpcProvider(
   //   network.name === 'mainnet' ? 'https://rpc.tomochain.com' : 'https://rpc.testnet.tomochain.com',
@@ -73,30 +83,30 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const tx4 = await root.setSubnodeOwner('0x' + keccak256('tomo'), owner)
   console.log(`Temporarily setting owner of tomo to owner  (tx: ${tx4.hash})...`)
   await tx4.wait()
-  delay(10000)
+  wait();
 
   const iNameWrapper = await computeInterfaceId(deployments, 'NameWrapper') 
   const tx5 = await resolver.setInterface(namehash('tomo'), iNameWrapper, nameWrapper.address)
   console.log(`Setting NameWrapper interface ID ${iNameWrapper} on .tomo resolver (tx: ${tx5.hash})...`)
   await tx5.wait()
-  delay(10000)
+  wait()
 
   const iRegistrarController = await computeInterfaceId(deployments, 'IETHRegistrarController')
   const tx6 = await resolver.setInterface(namehash('tomo'), iRegistrarController, controller.address)
   console.log(`Setting IETHRegistrarController interface ID ${iRegistrarController} on .tomo resolver (tx: ${tx6.hash})...`)
   await tx6.wait()
-  delay(10000)
+  wait();
 
   const iBulkRenewal = await computeInterfaceId(deployments, 'IBulkRenewal')
   const tx7 = await resolver.setInterface(namehash('tomo'), iBulkRenewal, controller.address)
   console.log(`Setting BulkRenewal interface ID ${iBulkRenewal} on .tomo resolver (tx: ${tx7.hash})...`)
   await tx7.wait()
-  delay(10000)
+  wait()
 
   const tx8 = await root.setSubnodeOwner('0x' + keccak256('tomo'), registrar.address)
   console.log(`Set owner of tomo back to registrar (tx: ${tx8.hash})...`)
   await tx8.wait();
-  delay(10000)
+  wait();
 
   return true
 }

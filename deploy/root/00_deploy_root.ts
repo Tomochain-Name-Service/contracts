@@ -3,6 +3,13 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000';
+function wait(){
+  console.log('waiting!...')
+  for (let index = 0; index < 10000000000; index++) {
+    
+  }
+  console.log('next!')
+}
 
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -24,10 +31,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const root = await ethers.getContract('Root')
 
+  wait();
+
   const tx1 = await registry.setOwner(ZERO_HASH, root.address)
   console.log(`Setting owner of root node to root contract (tx: ${tx1.hash})...`)
   await tx1.wait()
-
+  wait();
   const rootOwner = await root.owner()
   switch (rootOwner) {
     case deployer:

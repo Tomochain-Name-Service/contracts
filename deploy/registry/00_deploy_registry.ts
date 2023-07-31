@@ -4,6 +4,13 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
+function wait(){
+  for (let index = 0; index < 10000000000; index++) {
+    
+  }
+  console.log('next!')
+}
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, network } = hre
   const { deploy } = deployments
@@ -14,6 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [],
     log: true,
   })
+  wait();
 
   if (!network.tags.use_root) {
     const registry = await ethers.getContract('TomoNsRegistry')

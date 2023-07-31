@@ -15,19 +15,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
-  const registry = await ethers.getContract('TomoNsRegistry')
+  //const registry = await ethers.getContract('Multicall3')
+  console.log({deployer})
 
-  await deploy('UniversalResolver', {
+  await deploy('Multicall3', {
     from: deployer,
-    args: [registry.address],
+    args: [],
     log: true,
   })
 
   return true
 }
 
-func.id = 'universal-resolver'
-func.tags = [ 'UniversalResolver']
+func.id = 'multicall3'
+func.tags = [ 'Mlticall3']
 func.dependencies = []
 
 export default func
