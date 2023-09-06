@@ -1,6 +1,6 @@
 {
   "name": "@tomochain-name-service/tns-contracts",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "TomoChain Name Service contracts",
   "scripts": {
     "test": "hardhat test",

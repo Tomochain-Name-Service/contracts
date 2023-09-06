@@ -1,6 +1,15 @@
+import { Interface } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+
+const { makeInterfaceId } = require('@openzeppelin/test-helpers')
+
+function computeInterfaceId(iface: Interface) {
+  return makeInterfaceId.ERC165(
+    Object.values(iface.functions).map((frag) => frag.format('sighash')),
+  )
+}
 
 function wait(){
   console.log('waiting!...')
@@ -19,6 +28,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const priceOracle = await ethers.getContract('ExponentialPremiumPriceOracle', owner)
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar', owner)
   const nameWrapper = await ethers.getContract('NameWrapper', owner)
+  const registry = await ethers.getContract('TomoNsRegistry', owner)
 
   const deployArgs = {
     from: deployer,
@@ -29,6 +39,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       86400,
       reverseRegistrar.address,
       nameWrapper.address,
+      registry.address
     ],
     log: true,
   }
@@ -57,9 +68,32 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await tx2.wait()
   wait();
 
-  const tx3 = await registrar.addController(controller.address)
-  console.log(`Adding controller as controller on registrar (tx: ${tx3.hash})...`)
+  const artifact = await deployments.getArtifact('IETHRegistrarController')
+  const interfaceId = computeInterfaceId(new Interface(artifact.abi))
+
+  const resolver = await registry.resolver(ethers.utils.namehash('tomo'))
+
+  if (resolver === ethers.constants.AddressZero) {
+    console.log(
+      `No resolver set for .tomo; not setting interface ${interfaceId} for ETH Registrar Controller`,
+    )
+    return
+  }
+
+  const resolverContract = await ethers.getContractAt('OwnedResolver', resolver)
+  const tx3 = await resolverContract.setInterface(
+    ethers.utils.namehash('tomo'),
+    interfaceId,
+    controller.address,
+  )
+  console.log(
+    `Setting ETHRegistrarController interface ID ${interfaceId} on .tomo resolver (tx: ${tx3.hash})...`,
+  )
   await tx3.wait()
+
+  // const tx3 = await registrar.addController(controller.address)
+  // console.log(`Adding controller as controller on registrar (tx: ${tx3.hash})...`)
+  // await tx3.wait()
 
   return true
 }
@@ -72,6 +106,7 @@ func.dependencies = [
   'ExponentialPremiumPriceOracle',
   'ReverseRegistrar',
   'NameWrapper',
+  'OwnedResolver',
 ]
 
 export default func

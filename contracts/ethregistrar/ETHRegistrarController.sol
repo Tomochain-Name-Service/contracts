@@ -4,7 +4,9 @@ pragma solidity ~0.8.12;
 import {BaseRegistrarImplementation} from "./BaseRegistrarImplementation.sol";
 import {StringUtils} from "./StringUtils.sol";
 import {Resolver} from "../resolvers/Resolver.sol";
+import {TomoNs} from "../registry/TomoNs.sol";
 import {ReverseRegistrar} from "../registry/ReverseRegistrar.sol";
+import {ReverseClaimer} from "../reverseRegistrar/ReverseClaimer.sol";
 import {IETHRegistrarController, IPriceOracle} from "./IETHRegistrarController.sol";
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -31,19 +33,18 @@ contract ETHRegistrarController is
     Ownable,
     IETHRegistrarController,
     IERC165,
-    ERC20Recoverable
+    ERC20Recoverable,
+    ReverseClaimer
 {
     using StringUtils for *;
     using Address for address;
 
     uint256 public constant MIN_REGISTRATION_DURATION = 28 days;
-    // bytes32 private constant ETH_NODE =
-    //     0x070904f45402bbf3992472be342c636609db649a8ec20a8aaa65faaafd4b8701;
     bytes32 private constant ETH_NODE =
         0xee7289196899d8c5bc40150453f87a5ebf33e301b7ed2537d6cc0ba5caeadcd5;
     uint64 private constant MAX_EXPIRY = type(uint64).max;
     BaseRegistrarImplementation immutable base;
-    IPriceOracle public immutable prices;
+    IPriceOracle public prices;
     uint256 public immutable minCommitmentAge;
     uint256 public immutable maxCommitmentAge;
     ReverseRegistrar public immutable reverseRegistrar;
@@ -72,8 +73,9 @@ contract ETHRegistrarController is
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
-        INameWrapper _nameWrapper
-    ) {
+        INameWrapper _nameWrapper,
+        TomoNs _tomons
+    ) ReverseClaimer(_tomons, msg.sender) {
         if (_maxCommitmentAge <= _minCommitmentAge) {
             revert MaxCommitmentAgeTooLow();
         }
@@ -90,14 +92,16 @@ contract ETHRegistrarController is
         nameWrapper = _nameWrapper;
     }
 
-    function rentPrice(string memory name, uint256 duration)
-        public
-        view
-        override
-        returns (IPriceOracle.Price memory price)
-    {
+    function rentPrice(
+        string memory name,
+        uint256 duration
+    ) public view override returns (IPriceOracle.Price memory price) {
         bytes32 label = keccak256(bytes(name));
         price = prices.price(name, base.nameExpires(uint256(label)), duration);
+    }
+
+    function setPrices(IPriceOracle _prices) public onlyOwner{
+        prices = _prices;
     }
 
     function valid(string memory name) public pure returns (bool) {
@@ -117,8 +121,7 @@ contract ETHRegistrarController is
         address resolver,
         bytes[] calldata data,
         bool reverseRecord,
-        uint32 fuses,
-        uint64 wrapperExpiry
+        uint16 ownerControlledFuses
     ) public pure override returns (bytes32) {
         bytes32 label = keccak256(bytes(name));
         if (data.length > 0 && resolver == address(0)) {
@@ -130,12 +133,11 @@ contract ETHRegistrarController is
                     label,
                     owner,
                     duration,
+                    secret,
                     resolver,
                     data,
-                    secret,
                     reverseRecord,
-                    fuses,
-                    wrapperExpiry
+                    ownerControlledFuses
                 )
             );
     }
@@ -155,8 +157,7 @@ contract ETHRegistrarController is
         address resolver,
         bytes[] calldata data,
         bool reverseRecord,
-        uint32 fuses,
-        uint64 wrapperExpiry
+        uint16 ownerControlledFuses
     ) public payable override {
         IPriceOracle.Price memory price = rentPrice(name, duration);
         if (msg.value < price.base + price.premium) {
@@ -174,8 +175,7 @@ contract ETHRegistrarController is
                 resolver,
                 data,
                 reverseRecord,
-                fuses,
-                wrapperExpiry
+                ownerControlledFuses
             )
         );
 
@@ -184,8 +184,7 @@ contract ETHRegistrarController is
             owner,
             duration,
             resolver,
-            fuses,
-            wrapperExpiry
+            ownerControlledFuses
         );
 
         if (data.length > 0) {
@@ -212,42 +211,17 @@ contract ETHRegistrarController is
         }
     }
 
-    function renew(string calldata name, uint256 duration)
-        external
-        payable
-        override
-    {
-        _renew(name, duration, 0, 0);
-    }
-
-    function renewWithFuses(
+    function renew(
         string calldata name,
-        uint256 duration,
-        uint32 fuses,
-        uint64 wrapperExpiry
-    ) external payable {
-        bytes32 labelhash = keccak256(bytes(name));
-        bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, labelhash));
-        if (!nameWrapper.isTokenOwnerOrApproved(nodehash, msg.sender)) {
-            revert Unauthorised(nodehash);
-        }
-        _renew(name, duration, fuses, wrapperExpiry);
-    }
-
-    function _renew(
-        string calldata name,
-        uint256 duration,
-        uint32 fuses,
-        uint64 wrapperExpiry
-    ) internal {
+        uint256 duration
+    ) external payable override {
         bytes32 labelhash = keccak256(bytes(name));
         uint256 tokenId = uint256(labelhash);
         IPriceOracle.Price memory price = rentPrice(name, duration);
         if (msg.value < price.base) {
             revert InsufficientValue();
         }
-        uint256 expires;
-        expires = nameWrapper.renew(tokenId, duration, fuses, wrapperExpiry);
+        uint256 expires = nameWrapper.renew(tokenId, duration);
 
         if (msg.value > price.base) {
             payable(msg.sender).transfer(msg.value - price.base);
@@ -260,11 +234,9 @@ contract ETHRegistrarController is
         payable(owner()).transfer(address(this).balance);
     }
 
-    function supportsInterface(bytes4 interfaceID)
-        external
-        pure
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceID
+    ) external pure returns (bool) {
         return
             interfaceID == type(IERC165).interfaceId ||
             interfaceID == type(IETHRegistrarController).interfaceId;
