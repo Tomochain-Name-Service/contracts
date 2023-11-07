@@ -32,7 +32,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [
       dummyOracle.address,
-      [0, 0, '20294266869609', '5073566717402', '158548959919'],
+      [0, 0, '4974085017000000', '994817003400000', '248702690400000'],
       '100000000000000000000000000',
       21,
     ],

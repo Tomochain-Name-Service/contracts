@@ -6,7 +6,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
-  let metadataHost = process.env.METADATA_HOST || 'metadata.tomons.domains'
+  let metadataHost = process.env.METADATA_HOST || 'https://metadata.tomons.domains'
   if (network.name === 'localhost') {
     metadataHost = 'http://localhost:8080'
   }

@@ -7,7 +7,7 @@ import { keccak256 } from 'js-sha3'
 
 function wait(){
   console.log('waiting!...')
-  for (let index = 0; index < 10000000000; index++) {
+  for (let index = 0; index < 30000000000; index++) {
     
   }
   console.log('next!')
@@ -30,7 +30,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar')
   wait();
   
-  if (owner !== deployer) {
+  if (owner !== deployer && await reverseRegistrar.owner() !== owner) {
     const tx = await reverseRegistrar.transferOwnership(owner)
     console.log(`Transferring ownership of ReverseRegistrar to ${owner} (tx: ${tx.hash})...`)
     await tx.wait()

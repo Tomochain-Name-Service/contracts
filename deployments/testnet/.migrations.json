@@ -6,7 +6,6 @@
   "name-wrapper": 1693991968,
   "reverse-registrar": 1693992152,
   "universal-resolver": 1693992685,
-  "price-oracle": 1693992767,
   "eth-registrar": 1693993040,
   "resolver": 1693993101,
   "bulk-renewal": 1693993189,
@@ -15,5 +14,6 @@
   "dnssec-digests": 1694024963,
   "dnssec-oracle": 1694025175,
   "dns-registrar": 1694025185,
-  "multicall3": 1694025266
-}
+  "multicall3": 1694025266,
+  "price-oracle": 1698478966
+} 
