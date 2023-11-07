@@ -3,8 +3,8 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const tld_map = {
-  mainnet: ['tomo'],
-  testnet: ['tomo']
+  mainnet: ['vic'],
+  testnet: ['vic']
 }
 
 const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000';

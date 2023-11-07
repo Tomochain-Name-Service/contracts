@@ -22,7 +22,7 @@ library DNSClaimChecker {
         // Add "_ons." to the front of the name.
         Buffer.buffer memory buf;
         buf.init(name.length + 5);
-        buf.append("\x04_ons");
+        buf.append("\x04_vns");
         buf.append(name);
 
         for (

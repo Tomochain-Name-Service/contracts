@@ -80,30 +80,30 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //   return
   // }
 
-  const tx4 = await root.setSubnodeOwner('0x' + keccak256('tomo'), owner)
+  const tx4 = await root.setSubnodeOwner('0x' + keccak256('vic'), owner)
   console.log(`Temporarily setting owner of tomo to owner  (tx: ${tx4.hash})...`)
   await tx4.wait()
   wait();
 
   const iNameWrapper = await computeInterfaceId(deployments, 'NameWrapper') 
-  const tx5 = await resolver.setInterface(namehash('tomo'), iNameWrapper, nameWrapper.address)
+  const tx5 = await resolver.setInterface(namehash('vic'), iNameWrapper, nameWrapper.address)
   console.log(`Setting NameWrapper interface ID ${iNameWrapper} on .tomo resolver (tx: ${tx5.hash})...`)
   await tx5.wait()
   wait()
 
   const iRegistrarController = await computeInterfaceId(deployments, 'IETHRegistrarController')
-  const tx6 = await resolver.setInterface(namehash('tomo'), iRegistrarController, controller.address)
+  const tx6 = await resolver.setInterface(namehash('vic'), iRegistrarController, controller.address)
   console.log(`Setting IETHRegistrarController interface ID ${iRegistrarController} on .tomo resolver (tx: ${tx6.hash})...`)
   await tx6.wait()
   wait();
 
   const iBulkRenewal = await computeInterfaceId(deployments, 'IBulkRenewal')
-  const tx7 = await resolver.setInterface(namehash('tomo'), iBulkRenewal, controller.address)
+  const tx7 = await resolver.setInterface(namehash('vic'), iBulkRenewal, controller.address)
   console.log(`Setting BulkRenewal interface ID ${iBulkRenewal} on .tomo resolver (tx: ${tx7.hash})...`)
   await tx7.wait()
   wait()
 
-  const tx8 = await root.setSubnodeOwner('0x' + keccak256('tomo'), registrar.address)
+  const tx8 = await root.setSubnodeOwner('0x' + keccak256('vic'), registrar.address)
   console.log(`Set owner of tomo back to registrar (tx: ${tx8.hash})...`)
   await tx8.wait();
   wait();

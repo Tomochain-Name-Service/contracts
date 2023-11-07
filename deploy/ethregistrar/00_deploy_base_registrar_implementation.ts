@@ -25,10 +25,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const registry = await ethers.getContract('TomoNsRegistry')
   const root = await ethers.getContract('Root')
-  console.log({ra: registry.address, hash: namehash.hash('tomo')})
+  console.log({ra: registry.address, hash: namehash.hash('vic')})
   await deploy('BaseRegistrarImplementation', {
     from: deployer,
-    args: [registry.address, namehash.hash('tomo')],
+    args: [registry.address, namehash.hash('vic')],
     log: true,
   })
 
@@ -42,7 +42,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   wait();
 
-  const tx2 = await root.connect(await ethers.getSigner(owner)).setSubnodeOwner('0x' + keccak256('tomo'), registrar.address)
+  const tx2 = await root.connect(await ethers.getSigner(owner)).setSubnodeOwner('0x' + keccak256('vic'), registrar.address)
   console.log(`Setting owner of tomo node to registrar on root (tx: ${tx2.hash})...`)
   await tx2.wait()
 
